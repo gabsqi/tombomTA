@@ -1,0 +1,512 @@
+/* =============================================
+   VARIÁVEIS — altere aqui para trocar as cores
+   do site inteiro de uma vez só!
+   ============================================= */
+:root {
+  --azul-escuro:    #0f3460;
+  --vermelho:       #e94560;
+  --verde-wa:       #25D366;
+  --verde-wa-hover: #1da851;
+
+  --fundo-pagina: #f0f2f5;
+  --fundo-card:   #ffffff;
+
+  --texto-principal: #1a1a2e;
+  --texto-suave:     #64748b;
+  --texto-branco:    #ffffff;
+
+  /* Cores dos badges de estoque */
+  --cor-disponivel: #16a34a;  --bg-disponivel: #dcfce7;
+  --cor-poucos:     #ca8a04;  --bg-poucos:     #fef9c3;
+  --cor-ultimos:    #ea580c;  --bg-ultimos:    #ffedd5;
+  --cor-esgotado:   #dc2626;  --bg-esgotado:   #fee2e2;
+
+  /* Cores dos badges de marca */
+  --apple-texto:    #1d1d1f;  --apple-bg:    #f0f0f0;
+  --samsung-texto:  #1557b0;  --samsung-bg:  #dbeafe;
+  --motorola-texto: #c2410c;  --motorola-bg: #ffedd5;
+
+  --raio:        14px;
+  --raio-btn:    8px;
+  --sombra:      0 2px 16px rgba(0, 0, 0, 0.07);
+  --sombra-hover:0 10px 32px rgba(0, 0, 0, 0.14);
+  --transicao:   all 0.25s ease;
+}
+
+
+/* =============================================
+   RESET BÁSICO
+   Zera margens e padding padrão dos navegadores
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--fundo-pagina);
+  color: var(--texto-principal);
+  line-height: 1.5;
+}
+
+a { text-decoration: none; color: inherit; }
+
+
+/* =============================================
+   ÍCONE SVG DO WHATSAPP (reutilizado em vários
+   lugares: header, cards, botão flutuante)
+   ============================================= */
+.icone-wa {
+  width: 20px;
+  height: 20px;
+  fill: white;
+  flex-shrink: 0;
+}
+
+
+/* =============================================
+   CABEÇALHO
+   ============================================= */
+.cabecalho {
+  position: sticky;    /* fica fixo no topo ao rolar */
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, var(--azul-escuro) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cabecalho__logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cabecalho__icone { font-size: 2.2rem; }
+
+.cabecalho__titulo {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--texto-branco);
+  letter-spacing: -0.5px;
+}
+.cabecalho__titulo span { color: var(--vermelho); }
+
+.cabecalho__subtitulo {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+
+/* =============================================
+   BOTÃO WHATSAPP — componente reutilizável
+   Usado no header e nos cards
+   ============================================= */
+.botao-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--verde-wa);
+  color: var(--texto-branco);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 11px 20px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transicao);
+  white-space: nowrap;
+}
+.botao-wa:hover {
+  background-color: var(--verde-wa-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+
+/* =============================================
+   CONTEÚDO PRINCIPAL
+   ============================================= */
+.principal {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px 24px 120px;
+}
+
+
+/* =============================================
+   BARRA DE FERRAMENTAS (busca + filtros)
+   ============================================= */
+.barra-ferramentas {
+  display: flex;
+  flex-wrap: wrap;   /* quebra linha em telas menores */
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+/* Campo de busca cresce para preencher o espaço */
+.campo-busca {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: var(--transicao);
+}
+.campo-busca:focus {
+  border-color: var(--azul-escuro);
+  box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+}
+
+/* Grupo de botões de filtro */
+.filtros-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Cada botão de filtro */
+.filtro-btn {
+  padding: 8px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50px;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: var(--transicao);
+}
+.filtro-btn:hover         { border-color: var(--azul-escuro); color: var(--azul-escuro); }
+.filtro-btn.ativo         { background: var(--azul-escuro); border-color: var(--azul-escuro); color: white; }
+
+/* Select de ordenação */
+.select-ordenacao {
+  padding: 9px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  background: white;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transicao);
+}
+.select-ordenacao:focus { border-color: var(--azul-escuro); }
+
+
+/* =============================================
+   CONTADOR DE RESULTADOS
+   ============================================= */
+.contador {
+  font-size: 0.87rem;
+  color: var(--texto-suave);
+  margin-bottom: 18px;
+  padding-left: 4px;
+}
+.contador strong { color: var(--texto-principal); font-weight: 700; }
+
+
+/* =============================================
+   GRADE DE PRODUTOS (CSS Grid)
+   auto-fill cria colunas automáticas pela largura
+   ============================================= */
+.grade-produtos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 20px;
+}
+
+
+/* =============================================
+   CARD DE PRODUTO
+   ============================================= */
+.card {
+  background: var(--fundo-card);
+  border-radius: var(--raio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transicao);
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--sombra-hover);
+  border-color: var(--vermelho);
+}
+
+/* Área do emoji / futura foto do produto */
+.card__imagem {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4.5rem;
+}
+
+/* Corpo do card */
+.card__corpo {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;  /* faz todos os cards terem a mesma altura */
+}
+
+/* Linha com marca + cor */
+.card__cabecalho-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+/* Badge da marca */
+.card__marca {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 50px;
+}
+.card__marca--apple    { background: var(--apple-bg);    color: var(--apple-texto); }
+.card__marca--samsung  { background: var(--samsung-bg);  color: var(--samsung-texto); }
+.card__marca--motorola { background: var(--motorola-bg); color: var(--motorola-texto); }
+
+/* Badge da cor */
+.card__cor {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  background: #f1f5f9;
+  padding: 3px 10px;
+  border-radius: 50px;
+}
+
+/* Nome do produto */
+.card__nome {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+/* Badge de status de estoque */
+.card__estoque {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+  width: fit-content;
+}
+.card__estoque--disponivel { background: var(--bg-disponivel); color: var(--cor-disponivel); }
+.card__estoque--poucos     { background: var(--bg-poucos);     color: var(--cor-poucos); }
+.card__estoque--ultimos    { background: var(--bg-ultimos);    color: var(--cor-ultimos); }
+.card__estoque--esgotado   { background: var(--bg-esgotado);   color: var(--cor-esgotado); }
+
+/* Ponto colorido dentro do badge */
+.card__ponto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* Bloco de preços */
+.card__precos {
+  background: #f8fafc;
+  border-radius: var(--raio-btn);
+  padding: 11px 13px;
+  margin-bottom: 12px;
+  flex: 1;  /* empurra o botão para baixo */
+}
+
+.card__preco-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 7px 0;
+}
+.card__preco-linha:not(:last-child) { border-bottom: 1px solid #e2e8f0; }
+
+.card__preco-label {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  font-weight: 500;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+.card__preco-valores   { text-align: right; }
+
+.card__preco-parcela {
+  display: block;
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.card__preco-total {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--texto-suave);
+  margin-top: 1px;
+}
+
+/* Botão WhatsApp dentro do card */
+.card__botao-wa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background-color: var(--verde-wa);
+  color: var(--texto-branco);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: var(--raio-btn);
+  border: none;
+  cursor: pointer;
+  transition: var(--transicao);
+}
+.card__botao-wa:hover {
+  background-color: var(--verde-wa-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+}
+
+/* Card esgotado fica apagado e não clicável */
+.card--esgotado          { opacity: 0.5; pointer-events: none; }
+.card__botao-wa:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+
+/* =============================================
+   SEM RESULTADOS
+   ============================================= */
+.sem-resultados {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--texto-suave);
+}
+.sem-resultados p { font-size: 1.1rem; margin-bottom: 16px; }
+
+.botao-limpar {
+  padding: 10px 24px;
+  background: var(--azul-escuro);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transicao);
+}
+.botao-limpar:hover { opacity: 0.85; }
+
+
+/* =============================================
+   UTILITÁRIO — ocultar elemento
+   ============================================= */
+.oculto { display: none !important; }
+
+
+/* =============================================
+   BOTÃO FLUTUANTE DO WHATSAPP
+   ============================================= */
+.whatsapp-flutuante {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--verde-wa);
+  color: var(--texto-branco);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 14px 22px;
+  border-radius: 50px;
+  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.5);
+  transition: var(--transicao);
+}
+.whatsapp-flutuante:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 14px 40px rgba(37, 211, 102, 0.6);
+}
+
+
+/* =============================================
+   RODAPÉ
+   ============================================= */
+.rodape {
+  background: #1a1a2e;
+  color: #94a3b8;
+  text-align: center;
+  padding: 18px 24px;
+  font-size: 0.82rem;
+}
+
+
+/* =============================================
+   RESPONSIVIDADE
+   ============================================= */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .cabecalho {
+    padding: 14px 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .principal {
+    padding: 20px 14px 100px;
+  }
+}
+
+/* Celular */
+@media (max-width: 480px) {
+  .grade-produtos {
+    grid-template-columns: 1fr;  /* 1 coluna em telas pequenas */
+  }
+  .whatsapp-flutuante {
+    bottom: 16px;
+    right: 14px;
+    padding: 12px 16px;
+    font-size: 0.84rem;
+  }
+}
