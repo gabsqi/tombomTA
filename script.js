@@ -165,7 +165,6 @@ function processarProduto(linha) {
     parc24x:       parseFloat(linha.PARC_24X)  || 0,
     fabricante:    linha.FABRICANTE || 'Outros',
     saldo:         saldo,
-    cor:           extrairCor(linha.MATERIAL),
     tipo:          detectarTipo(linha.NOME_COMERCIAL),
     status:        calcularStatus(saldo),
   };
@@ -283,8 +282,7 @@ function filtrarEOrdenar() {
     const busca = termoBusca.toLowerCase();
     resultado = resultado.filter(p =>
       p.nome.toLowerCase().includes(busca) ||
-      p.fabricante.toLowerCase().includes(busca) ||
-      p.cor.toLowerCase().includes(busca)
+      p.fabricante.toLowerCase().includes(busca)
     );
   }
 
@@ -360,7 +358,7 @@ function criarCardHTML(produto) {
         ${esgotado
           ? `<button class="card__botao-wa" disabled>Produto Esgotado</button>`
           : `<a href="${linkWA}" target="_blank" class="card__botao-wa">
-               ${SVG_WA} Tenho Interesse! 🛒
+               ${SVG_WA} Quero esse!
              </a>`
         }
 
