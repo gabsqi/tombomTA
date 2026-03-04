@@ -144,8 +144,7 @@ a { text-decoration: none; color: inherit; }
 .card__foto {
   width: 100%;
   height: 100%;
-  object-fit: contain;  /* mantém proporção sem cortar */
-  padding: 12px;
+  padding: 2px;
 }
 /* =============================================
    BARRA DE FERRAMENTAS (busca + filtros)
