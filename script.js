@@ -195,18 +195,20 @@ function processarProduto(linha) {
   if (!linha.MATERIAL || !linha.NOME_COMERCIAL) return null;
 
   const saldo = parseInt(linha.SALDO, 10) || 0;
+  const nomeCompleto = limparNome(linha.NOME_COMERCIAL);
 
   return {
-    material:      linha.MATERIAL,
-    nome:          limparNome(linha.NOME_COMERCIAL),
-    valor10x:      parseFloat(linha.VALOR_10x) || 0,
-    parc10x:       parseFloat(linha.PARC_10X)  || 0,
-    valor24x:      parseFloat(linha.VALOR_24X) || 0,
-    parc24x:       parseFloat(linha.PARC_24X)  || 0,
-    fabricante:    linha.FABRICANTE || 'Outros',
-    saldo:         saldo,
-    tipo:          detectarTipo(linha.NOME_COMERCIAL),
-    status:        calcularStatus(saldo),
+    material:   linha.MATERIAL,
+    nome:       nomeCompleto,
+    valor10x:   parseFloat(linha.VALOR_10x) || 0,
+    parc10x:    parseFloat(linha.PARC_10X)  || 0,
+    valor24x:   parseFloat(linha.VALOR_24X) || 0,
+    parc24x:    parseFloat(linha.PARC_24X)  || 0,
+    fabricante: linha.FABRICANTE || 'Outros',
+    saldo:      saldo,
+    imagem:     encontrarImagem(nomeCompleto),  
+    tipo:       detectarTipo(linha.NOME_COMERCIAL),
+    status:     calcularStatus(saldo),
   };
 }
 
