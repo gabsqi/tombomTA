@@ -25,6 +25,46 @@ const MAPA_CORES = {
   'N':   '',   // sufixo "Nacional" — não exibe
 };
 
+
+const MAPA_IMAGENS = {
+  'iPhone 17 Pro Max':  'imagens/iphone17promax.jpg',
+  'iPhone 17 Pro':      'imagens/iphone17pro.jpg',
+  'iPhone Air':         'imagens/iphoneair.jpg',
+  'iPhone 17':          'imagens/iphone17.jpg',
+  'iPhone 16e':         'imagens/iphone16e.jpg',
+  'iPhone 15':          'imagens/iphone15.jpg',
+  'iPad Pro':           'imagens/ipad-pro.jpg',
+  'iPad Air':           'imagens/ipad-air.jpg',
+  'iPad A16':           'imagens/ipad-a16.jpg',
+  'Watch Series 11':    'imagens/apple-watch-s11.jpg',
+  'Galaxy S25 Ultra':   'imagens/galaxy-s25-ultra.jpg',
+  'Galaxy Z Flip 7':    'imagens/galaxy-z-flip7.jpg',
+  'Galaxy S25 FE':      'imagens/galaxy-s25-fe.jpg',
+  'Galaxy Tab S10 FE+': 'imagens/galaxy-tab-s10-fe-plus.jpg',
+  'Galaxy Tab S10 FE':  'imagens/galaxy-tab-s10-fe.jpg',
+  'Galaxy Watch 8':     'imagens/galaxy-watch-8.jpg',
+  'Galaxy A36':         'imagens/galaxy-a36.jpg',
+  'Galaxy A26':         'imagens/galaxy-a26.jpg',
+  'Galaxy A17':         'imagens/galaxy-a17.jpg',
+  'Galaxy A06':         'imagens/galaxy-a06.jpg',
+  'Razr 60 Ultra':      'imagens/razr-60-ultra.jpg',
+  'Edge 60 Fusion':     'imagens/edge-60-fusion.jpg',
+  'G86':                'imagens/moto-g86.jpg',
+  'G56':                'imagens/moto-g56.jpg',
+  'G35':                'imagens/moto-g35.jpg',
+  'G06':                'imagens/moto-g06.jpg',
+  'G05':                'imagens/moto-g05.jpg',
+};
+
+// Percorre o MAPA_IMAGENS e retorna o caminho
+// da primeira chave encontrada no nome do produto
+function encontrarImagem(nome) {
+  const chave = Object.keys(MAPA_IMAGENS).find(k => nome.includes(k));
+  return chave ? MAPA_IMAGENS[chave] : null;
+}
+
+
+
 // SVG do WhatsApp reutilizado dentro dos cards
 const SVG_WA = `
   <svg class="icone-wa" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -169,6 +209,16 @@ function processarProduto(linha) {
     status:        calcularStatus(saldo),
   };
 }
+
+return {
+  material:   linha.MATERIAL,
+  nome:       limparNome(linha.NOME_COMERCIAL),
+  // ...demais campos...
+  imagem:     encontrarImagem(limparNome(linha.NOME_COMERCIAL)),  // ← adicione essa linha
+  tipo:       detectarTipo(linha.NOME_COMERCIAL),
+  status:     calcularStatus(saldo),
+};
+
 
 // Remove aspas e espaços extras do nome
 function limparNome(nome) {
