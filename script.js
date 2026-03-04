@@ -372,7 +372,12 @@ function criarCardHTML(produto) {
   return `
     <article class="card ${esgotado ? 'card--esgotado' : ''}">
 
-      <div class="card__imagem">${produto.tipo.emoji}</div>
+      <div class="card__imagem">
+  ${produto.imagem
+    ? `<img src="${produto.imagem}" alt="${produto.nome}" class="card__foto" />`
+    : produto.tipo.emoji   // fallback: mostra o emoji se não tiver foto
+  }
+</div>
 
       <div class="card__corpo">
 
