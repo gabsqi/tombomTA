@@ -117,4 +117,284 @@ function parsearCSV(texto) {
     .slice(1)
     .map(linha => {
       const valores = parsearLinhaCSV(linha);
-      const
+      const obj = {};
+      cabecalho.forEach((coluna, i) => {
+        obj[coluna.trim()] = (valores[i] || '').trim().replace(/^"+|"+$/g, '');
+      });
+      return obj;
+    })
+    .map(processarProduto)
+    .filter(p => p !== null);
+}
+
+function parsearLinhaCSV(linha) {
+  const resultado = [];
+  let campoAtual  = '';
+  let dentroAspas = false;
+
+  for (let i = 0; i < linha.length; i++) {
+    const char = linha[i];
+
+    if (char === '"') {
+      if (dentroAspas && linha[i + 1] === '"') {
+        campoAtual += '"';
+        i++;
+      } else {
+        dentroAspas = !dentroAspas;
+      }
+    } else if (char === ',' && !dentroAspas) {
+      resultado.push(campoAtual);
+      campoAtual = '';
+    } else {
+      campoAtual += char;
+    }
+  }
+
+  resultado.push(campoAtual);
+  return resultado;
+}
+
+
+// ============================================
+// 3. PROCESSAR PRODUTO
+// ============================================
+function processarProduto(linha) {
+  if (!linha.MATERIAL || !linha.NOME_COMERCIAL) return null;
+
+  const saldo        = parseInt(linha.SALDO, 10) || 0;
+  const nomeCompleto = limparNome(linha.NOME_COMERCIAL);
+
+  // CORREÇÃO: apenas UM return, aqui dentro, com todos os campos incluindo imagem
+  return {
+    material:   linha.MATERIAL,
+    nome:       nomeCompleto,
+    valor10x:   parseFloat(linha.VALOR_10x) || 0,
+    parc10x:    parseFloat(linha.PARC_10X)  || 0,
+    valor24x:   parseFloat(linha.VALOR_24X) || 0,
+    parc24x:    parseFloat(linha.PARC_24X)  || 0,
+    fabricante: linha.FABRICANTE || 'Outros',
+    saldo:      saldo,
+    imagem:     encontrarImagem(nomeCompleto),
+    tipo:       detectarTipo(linha.NOME_COMERCIAL),
+    status:     calcularStatus(saldo),
+  };
+}
+// ← função termina aqui. Não há nada entre essa linha e a próxima função.
+
+
+// ============================================
+// FUNÇÕES AUXILIARES
+// ============================================
+function limparNome(nome) {
+  return nome.replace(/"+/g, '').trim();
+}
+
+function detectarTipo(nome) {
+  const n = nome.toLowerCase();
+  if (n.includes('tablet') || n.includes('ipad'))    return { label: 'Tablet',     emoji: '📟' };
+  if (n.includes('watch')  || n.includes('relógio')) return { label: 'Wearable',   emoji: '⌚' };
+  return                                                     { label: 'Smartphone', emoji: '📱' };
+}
+
+function calcularStatus(saldo) {
+  if (saldo === 0) return { classe: 'esgotado',   texto: '❌ Esgotado' };
+  if (saldo <= 3)  return { classe: 'ultimos',    texto: `⚡ Últimas ${saldo} unidades!` };
+  if (saldo <= 10) return { classe: 'poucos',     texto: `⚠️ Apenas ${saldo} unidades` };
+  return                  { classe: 'disponivel', texto: `✅ ${saldo} unidades` };
+}
+
+
+// ============================================
+// 4. CRIAR BOTÕES DE FILTRO
+// ============================================
+function criarBotoesFiltroPorMarca() {
+  const marcas    = ['todos', ...new Set(todosOsProdutos.map(p => p.fabricante).sort())];
+  const container = document.getElementById('filtros-marca');
+
+  marcas.forEach(marca => {
+    const btn         = document.createElement('button');
+    btn.className     = 'filtro-btn' + (marca === 'todos' ? ' ativo' : '');
+    btn.textContent   = marca === 'todos' ? '🏷️ Todas as marcas' : marca;
+    btn.dataset.valor = marca;
+    btn.onclick       = () => alterarFiltroMarca(marca);
+    container.appendChild(btn);
+  });
+}
+
+function criarBotoesFiltroPorTipo() {
+  const tipos     = ['todos', 'Smartphone', 'Tablet', 'Wearable'];
+  const container = document.getElementById('filtros-tipo');
+
+  tipos.forEach(tipo => {
+    const btn         = document.createElement('button');
+    btn.className     = 'filtro-btn' + (tipo === 'todos' ? ' ativo' : '');
+    btn.textContent   = tipo === 'todos' ? '📦 Todos' : tipo;
+    btn.dataset.valor = tipo;
+    btn.onclick       = () => alterarFiltroTipo(tipo);
+    container.appendChild(btn);
+  });
+}
+
+
+// ============================================
+// 5. FILTRAR, ORDENAR E RENDERIZAR
+// ============================================
+function renderizarCards() {
+  const filtrados = filtrarEOrdenar();
+  const grade     = document.getElementById('grade-produtos');
+  const semResult = document.getElementById('sem-resultados');
+  const contador  = document.getElementById('contador');
+
+  grade.innerHTML = '';
+
+  if (filtrados.length === 0) {
+    semResult.classList.remove('oculto');
+    contador.innerHTML = 'Nenhum produto encontrado.';
+    return;
+  }
+
+  semResult.classList.add('oculto');
+  contador.innerHTML = `Mostrando <strong>${filtrados.length}</strong> produto(s)`;
+
+  filtrados.forEach(produto => {
+    grade.insertAdjacentHTML('beforeend', criarCardHTML(produto));
+  });
+}
+
+function filtrarEOrdenar() {
+  let resultado = [...todosOsProdutos];
+
+  if (filtroMarcaAtivo !== 'todos') {
+    resultado = resultado.filter(p => p.fabricante === filtroMarcaAtivo);
+  }
+  if (filtroTipoAtivo !== 'todos') {
+    resultado = resultado.filter(p => p.tipo.label === filtroTipoAtivo);
+  }
+  if (termoBusca.length > 0) {
+    const busca = termoBusca.toLowerCase();
+    resultado = resultado.filter(p =>
+      p.nome.toLowerCase().includes(busca) ||
+      p.fabricante.toLowerCase().includes(busca)
+    );
+  }
+
+  resultado.sort((a, b) => {
+    if (ordenacaoAtiva === 'menor-preco')  return a.valor10x - b.valor10x;
+    if (ordenacaoAtiva === 'maior-preco')  return b.valor10x - a.valor10x;
+    if (ordenacaoAtiva === 'mais-estoque') return b.saldo - a.saldo;
+    return a.nome.localeCompare(b.nome, 'pt-BR');
+  });
+
+  return resultado;
+}
+
+
+// ============================================
+// 6. CRIAR HTML DO CARD
+// ============================================
+function criarCardHTML(produto) {
+  const marcaClasse = produto.fabricante.toLowerCase();
+  const esgotado    = produto.saldo === 0;
+
+  const mensagem = encodeURIComponent(
+    `Olá! Tenho interesse no *${produto.nome}*.\nPoderia me passar mais informações? 😊`
+  );
+  const linkWA = `https://wa.me/${CONFIG.telefone}?text=${mensagem}`;
+
+  const fmt = valor => valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  return `
+    <article class="card ${esgotado ? 'card--esgotado' : ''}">
+
+      <div class="card__imagem">
+        ${produto.imagem
+          ? `<img src="${produto.imagem}" alt="${produto.nome}" class="card__foto" />`
+          : produto.tipo.emoji}
+      </div>
+
+      <div class="card__corpo">
+
+        <div class="card__cabecalho-info">
+          <span class="card__marca card__marca--${marcaClasse}">${produto.fabricante}</span>
+        </div>
+
+        <h2 class="card__nome">${produto.nome}</h2>
+
+        <span class="card__estoque card__estoque--${produto.status.classe}">
+          <span class="card__ponto"></span>
+          ${produto.status.texto}
+        </span>
+
+        <div class="card__precos">
+          <div class="card__preco-linha">
+            <span class="card__preco-label">10× sem juros</span>
+            <div class="card__preco-valores">
+              <span class="card__preco-parcela">${fmt(produto.parc10x)}/mês</span>
+              <span class="card__preco-total">Total: ${fmt(produto.valor10x)}</span>
+            </div>
+          </div>
+          <div class="card__preco-linha">
+            <span class="card__preco-label">24×</span>
+            <div class="card__preco-valores">
+              <span class="card__preco-parcela">${fmt(produto.parc24x)}/mês</span>
+              <span class="card__preco-total">Total: ${fmt(produto.valor24x)}</span>
+            </div>
+          </div>
+        </div>
+
+        ${esgotado
+          ? `<button class="card__botao-wa" disabled>Produto Esgotado</button>`
+          : `<a href="${linkWA}" target="_blank" class="card__botao-wa">
+               ${SVG_WA} Quero esse!
+             </a>`}
+
+      </div>
+    </article>`;
+}
+
+
+// ============================================
+// 7. EVENTOS
+// ============================================
+function configurarEventos() {
+  document.getElementById('campo-busca').addEventListener('input', function () {
+    termoBusca = this.value.trim();
+    renderizarCards();
+  });
+
+  document.getElementById('select-ordenacao').addEventListener('change', function () {
+    ordenacaoAtiva = this.value;
+    renderizarCards();
+  });
+}
+
+function alterarFiltroMarca(marca) {
+  filtroMarcaAtivo = marca;
+  atualizarBotaoAtivo('filtros-marca', marca);
+  renderizarCards();
+}
+
+function alterarFiltroTipo(tipo) {
+  filtroTipoAtivo = tipo;
+  atualizarBotaoAtivo('filtros-tipo', tipo);
+  renderizarCards();
+}
+
+function atualizarBotaoAtivo(idContainer, valorAtivo) {
+  const container = document.getElementById(idContainer);
+  container.querySelectorAll('.filtro-btn').forEach(btn => {
+    btn.classList.toggle('ativo', btn.dataset.valor === valorAtivo);
+  });
+}
+
+function limparFiltros() {
+  filtroMarcaAtivo = 'todos';
+  filtroTipoAtivo  = 'todos';
+  termoBusca       = '';
+  ordenacaoAtiva   = 'nome';
+  document.getElementById('campo-busca').value      = '';
+  document.getElementById('select-ordenacao').value = 'nome';
+  atualizarBotaoAtivo('filtros-marca', 'todos');
+  atualizarBotaoAtivo('filtros-tipo',  'todos');
+  renderizarCards();
+}
