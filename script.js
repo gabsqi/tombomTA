@@ -13,16 +13,11 @@ const MAPA_IMAGENS = {
   'iPhone 17': 'imagens/iphone17.jpg',
   'iPhone 16e': 'imagens/iphone16e.jpg',
   'iPhone 15': 'imagens/iphone15.jpg',
-  'iPad Pro': 'imagens/ipad-pro.jpg',
-  'iPad Air': 'imagens/ipad-air.jpg',
-  'iPad A16': 'imagens/ipad-a16.jpg',
-  'Watch Series 11': 'imagens/apple-watch-s11.jpg',
   'Galaxy S25 Ultra': 'imagens/galaxy-s25-ultra.jpg',
   'Galaxy Z Flip 7': 'imagens/galaxy-z-flip7.jpg',
   'Galaxy S25 FE': 'imagens/galaxy-s25-fe.jpg',
   'Galaxy Tab S10 FE+': 'imagens/galaxy-tab-s10-fe-plus.jpg',
   'Galaxy Tab S10 FE': 'imagens/galaxy-tab-s10-fe.jpg',
-  'Galaxy Watch 8': 'imagens/galaxy-watch-8.jpg',
   'Galaxy A36': 'imagens/galaxy-a36.jpg',
   'Galaxy A26': 'imagens/galaxy-a26.jpg',
   'Galaxy A17': 'imagens/galaxy-a17.jpg',
@@ -123,8 +118,7 @@ function parsearCSV(texto) {
     .filter(obj => parseInt(obj.SALDO, 10) > 0)
     .map(processarProduto)
     .filter(p => p !== null);
-
-  return produtos;
+  return agruparPorModelo(produtos);  // ← adicione essa linha
 }
 
 function parsearLinhaCSV(linha, separador = ',') {
@@ -209,6 +203,19 @@ function calcularStatus(saldo) {
   return { classe: 'disponivel', texto: `✅ ${saldo} unidades` };
 }
 
+function agruparPorModelo(produtos) {
+  const mapa = {};
+
+  produtos.forEach(produto => {
+    const chave = produto.nome;
+
+    if (!mapa[chave] || produto.saldo > mapa[chave].saldo) {
+      mapa[chave] = produto;
+    }
+  });
+
+  return Object.values(mapa);
+}
 
 // ============================================
 // 4. CRIAR BOTÕES DE FILTRO
