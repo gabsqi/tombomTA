@@ -26,6 +26,8 @@ const MAPA_IMAGENS = {
   'Galaxy A06': 'imagens/galaxy-a06.jpg',
   'Razr 60 Ultra': 'imagens/razr-60-ultra.jpg',
   'Edge 60 Fusion': 'imagens/edge-60-fusion.jpg',
+  'Edge 70 Fusion': 'imagens/edge70fusion.jpg',
+  'Edge 70 ': 'imagens/edge70.jpg',
   'G86': 'imagens/moto-g86.jpg',
   'G56': 'imagens/moto-g56.jpg',
   'G35': 'imagens/moto-g35.jpg',
