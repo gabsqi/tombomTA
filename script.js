@@ -1,18 +1,9 @@
 // ============================================
-// CONFIGURAÇÕES — edite apenas aqui!
+// CONFIGURAÇÕES
 // ============================================
 const CONFIG = {
   telefone:   '5551999255568',
   arquivoCSV: 'estoque.csv',
-};
-
-const MAPA_CORES = {
-  'BR':  'Branco',  'PT':  'Preto',   'AZ':  'Azul',
-  'AZM': 'Azul Marinho',              'VD':  'Verde',
-  'DR':  'Dourado', 'VM':  'Vermelho','CZ':  'Cinza',
-  'LJ':  'Laranja', 'PR':  'Roxo',    'GF':  'Grafite',
-  'TN':  'Titânio', 'EE':  'Ed. Especial', 'FB': 'For Business',
-  'N':   '',
 };
 
 const MAPA_IMAGENS = {
@@ -82,7 +73,7 @@ async function carregarCSV() {
     const resposta = await fetch(CONFIG.arquivoCSV);
 
     if (!resposta.ok) {
-      throw new Error(`Arquivo "${CONFIG.arquivoCSV}" não encontrado na pasta.`);
+      throw new Error(`Arquivo "${CONFIG.arquivoCSV}" não encontrado.`);
     }
 
     const textoCSV = await resposta.text();
@@ -96,8 +87,8 @@ async function carregarCSV() {
     document.getElementById('grade-produtos').innerHTML =
       `<p style="color:red;padding:24px;grid-column:1/-1">
          ⚠️ Erro: ${erro.message}<br><br>
-         Certifique-se de que o <strong>estoque.csv</strong> está na mesma pasta
-         e que você está usando o <strong>Live Server</strong>.
+         Verifique se o <strong>estoque.csv</strong> está na pasta
+         e use o <strong>Live Server</strong> para testar.
        </p>`;
     document.getElementById('contador').textContent = '';
   }
@@ -106,28 +97,40 @@ async function carregarCSV() {
 
 // ============================================
 // 2. PARSEAR O CSV
+// Separador: ponto e vírgula (;)
+// Filtra: apenas CD=DFW1, TIPO_MATERIAL=Aparelho, TIPO=Smartphone
+// Dedup: remove linhas onde TIPO está vazio (linha duplicada sem tipo)
 // ============================================
 function parsearCSV(texto) {
-  // CORREÇÃO: '\n' com uma barra só — quebra de linha real
-  const linhas = texto.split('\n').filter(linha => linha.trim() !== '');
+  const linhas = texto.split('\n').filter(l => l.trim() !== '');
 
-  const cabecalho = parsearLinhaCSV(linhas[0]);
+  // Cabeçalho separado por ;
+  const cabecalho = linhas[0].split(';').map(c => c.trim().replace(/^"+|"+$/g, ''));
 
-  return linhas
+  const produtos = linhas
     .slice(1)
     .map(linha => {
-      const valores = parsearLinhaCSV(linha);
+      const valores = parsearLinhaCSV(linha, ';');
       const obj = {};
-      cabecalho.forEach((coluna, i) => {
-        obj[coluna.trim()] = (valores[i] || '').trim().replace(/^"+|"+$/g, '');
+      cabecalho.forEach((col, i) => {
+        obj[col] = (valores[i] || '').trim().replace(/^"+|"+$/g, '');
       });
       return obj;
     })
+    // Mantém apenas linhas com TIPO preenchido (remove duplicata vazia)
+    .filter(obj => obj.TIPO && obj.TIPO.trim() !== '')
+    // Apenas Smartphones do depósito DFW1
+    .filter(obj => obj.TIPO === 'Smartphone')
+    .filter(obj => obj.CD === 'DFW1')
+    .filter(obj => obj.TIPO_MATERIAL === 'Aparelho')
     .map(processarProduto)
     .filter(p => p !== null);
+
+  return produtos;
 }
 
-function parsearLinhaCSV(linha) {
+// Parseia uma linha respeitando campos entre aspas
+function parsearLinhaCSV(linha, separador = ',') {
   const resultado = [];
   let campoAtual  = '';
   let dentroAspas = false;
@@ -142,7 +145,7 @@ function parsearLinhaCSV(linha) {
       } else {
         dentroAspas = !dentroAspas;
       }
-    } else if (char === ',' && !dentroAspas) {
+    } else if (char === separador && !dentroAspas) {
       resultado.push(campoAtual);
       campoAtual = '';
     } else {
@@ -164,14 +167,21 @@ function processarProduto(linha) {
   const saldo        = parseInt(linha.SALDO, 10) || 0;
   const nomeCompleto = limparNome(linha.NOME_COMERCIAL);
 
-  // CORREÇÃO: apenas UM return, aqui dentro, com todos os campos incluindo imagem
+  // Colunas do novo arquivo
+  const valor10x = parseFloat(linha.VALORATE10X) || 0;
+  const valor24x = parseFloat(linha.VALORATE24X) || 0;
+
+  // Parcelas calculadas (não vêm prontas no novo arquivo)
+  const parc10x = valor10x > 0 ? valor10x / 10 : 0;
+  const parc24x = valor24x > 0 ? valor24x / 24 : 0;
+
   return {
     material:   linha.MATERIAL,
     nome:       nomeCompleto,
-    valor10x:   parseFloat(linha.VALOR_10x) || 0,
-    parc10x:    parseFloat(linha.PARC_10X)  || 0,
-    valor24x:   parseFloat(linha.VALOR_24X) || 0,
-    parc24x:    parseFloat(linha.PARC_24X)  || 0,
+    valor10x:   valor10x,
+    parc10x:    parc10x,
+    valor24x:   valor24x,
+    parc24x:    parc24x,
     fabricante: linha.FABRICANTE || 'Outros',
     saldo:      saldo,
     imagem:     encontrarImagem(nomeCompleto),
@@ -179,7 +189,6 @@ function processarProduto(linha) {
     status:     calcularStatus(saldo),
   };
 }
-// ← função termina aqui. Não há nada entre essa linha e a próxima função.
 
 
 // ============================================
