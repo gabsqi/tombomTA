@@ -13,6 +13,7 @@ const MAPA_IMAGENS = {
   'iPhone 17': 'imagens/iphone17.jpg',
   'iPhone 17e': 'imagens/iphone17e.jpg',
   'iPhone 16e': 'imagens/iphone16e.jpg',
+  'iPhone 16': 'imagens/iphone16.jpg',
   'iPhone 15': 'imagens/iphone15.jpg',
   'Galaxy S25 Ultra': 'imagens/galaxy-s25-ultra.jpg',
   'Galaxy Z Flip 7': 'imagens/galaxy-z-flip7.jpg',
