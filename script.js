@@ -2,38 +2,38 @@
 // CONFIGURAÇÕES
 // ============================================
 const CONFIG = {
-  telefone:   '5551999255568',
+  telefone: '5551999255568',
   arquivoCSV: 'estoque.csv',
 };
 
 const MAPA_IMAGENS = {
-  'iPhone 17 Pro Max':  'imagens/iphone17promax.jpg',
-  'iPhone 17 Pro':      'imagens/iphone17pro.jpg',
-  'iPhone Air':         'imagens/iphoneair.jpg',
-  'iPhone 17':          'imagens/iphone17.jpg',
-  'iPhone 16e':         'imagens/iphone16e.jpg',
-  'iPhone 15':          'imagens/iphone15.jpg',
-  'iPad Pro':           'imagens/ipad-pro.jpg',
-  'iPad Air':           'imagens/ipad-air.jpg',
-  'iPad A16':           'imagens/ipad-a16.jpg',
-  'Watch Series 11':    'imagens/apple-watch-s11.jpg',
-  'Galaxy S25 Ultra':   'imagens/galaxy-s25-ultra.jpg',
-  'Galaxy Z Flip 7':    'imagens/galaxy-z-flip7.jpg',
-  'Galaxy S25 FE':      'imagens/galaxy-s25-fe.jpg',
+  'iPhone 17 Pro Max': 'imagens/iphone17promax.jpg',
+  'iPhone 17 Pro': 'imagens/iphone17pro.jpg',
+  'iPhone Air': 'imagens/iphoneair.jpg',
+  'iPhone 17': 'imagens/iphone17.jpg',
+  'iPhone 16e': 'imagens/iphone16e.jpg',
+  'iPhone 15': 'imagens/iphone15.jpg',
+  'iPad Pro': 'imagens/ipad-pro.jpg',
+  'iPad Air': 'imagens/ipad-air.jpg',
+  'iPad A16': 'imagens/ipad-a16.jpg',
+  'Watch Series 11': 'imagens/apple-watch-s11.jpg',
+  'Galaxy S25 Ultra': 'imagens/galaxy-s25-ultra.jpg',
+  'Galaxy Z Flip 7': 'imagens/galaxy-z-flip7.jpg',
+  'Galaxy S25 FE': 'imagens/galaxy-s25-fe.jpg',
   'Galaxy Tab S10 FE+': 'imagens/galaxy-tab-s10-fe-plus.jpg',
-  'Galaxy Tab S10 FE':  'imagens/galaxy-tab-s10-fe.jpg',
-  'Galaxy Watch 8':     'imagens/galaxy-watch-8.jpg',
-  'Galaxy A36':         'imagens/galaxy-a36.jpg',
-  'Galaxy A26':         'imagens/galaxy-a26.jpg',
-  'Galaxy A17':         'imagens/galaxy-a17.jpg',
-  'Galaxy A06':         'imagens/galaxy-a06.jpg',
-  'Razr 60 Ultra':      'imagens/razr-60-ultra.jpg',
-  'Edge 60 Fusion':     'imagens/edge-60-fusion.jpg',
-  'G86':                'imagens/moto-g86.jpg',
-  'G56':                'imagens/moto-g56.jpg',
-  'G35':                'imagens/moto-g35.jpg',
-  'G06':                'imagens/moto-g06.jpg',
-  'G05':                'imagens/moto-g05.jpg',
+  'Galaxy Tab S10 FE': 'imagens/galaxy-tab-s10-fe.jpg',
+  'Galaxy Watch 8': 'imagens/galaxy-watch-8.jpg',
+  'Galaxy A36': 'imagens/galaxy-a36.jpg',
+  'Galaxy A26': 'imagens/galaxy-a26.jpg',
+  'Galaxy A17': 'imagens/galaxy-a17.jpg',
+  'Galaxy A06': 'imagens/galaxy-a06.jpg',
+  'Razr 60 Ultra': 'imagens/razr-60-ultra.jpg',
+  'Edge 60 Fusion': 'imagens/edge-60-fusion.jpg',
+  'G86': 'imagens/moto-g86.jpg',
+  'G56': 'imagens/moto-g56.jpg',
+  'G35': 'imagens/moto-g35.jpg',
+  'G06': 'imagens/moto-g06.jpg',
+  'G05': 'imagens/moto-g05.jpg',
 };
 
 function encontrarImagem(nome) {
@@ -49,11 +49,11 @@ const SVG_WA = `
 // ============================================
 // VARIÁVEIS DE ESTADO
 // ============================================
-let todosOsProdutos  = [];
+let todosOsProdutos = [];
 let filtroMarcaAtivo = 'todos';
-let filtroTipoAtivo  = 'todos';
-let termoBusca       = '';
-let ordenacaoAtiva   = 'nome';
+let filtroTipoAtivo = 'todos';
+let termoBusca = '';
+let ordenacaoAtiva = 'nome';
 
 
 // ============================================
@@ -80,7 +80,6 @@ async function carregarCSV() {
     todosOsProdutos = parsearCSV(textoCSV);
 
     criarBotoesFiltroPorMarca();
-    criarBotoesFiltroPorTipo();
     renderizarCards();
 
   } catch (erro) {
@@ -117,22 +116,20 @@ function parsearCSV(texto) {
       });
       return obj;
     })
-    // Mantém apenas linhas com TIPO preenchido (remove duplicata vazia)
     .filter(obj => obj.TIPO && obj.TIPO.trim() !== '')
-    // Apenas Smartphones do depósito DFW1
     .filter(obj => obj.TIPO === 'Smartphone')
     .filter(obj => obj.CD === 'DFW1')
     .filter(obj => obj.TIPO_MATERIAL === 'Aparelho')
+    .filter(obj => parseInt(obj.SALDO, 10) > 0)
     .map(processarProduto)
     .filter(p => p !== null);
 
   return produtos;
 }
 
-// Parseia uma linha respeitando campos entre aspas
 function parsearLinhaCSV(linha, separador = ',') {
   const resultado = [];
-  let campoAtual  = '';
+  let campoAtual = '';
   let dentroAspas = false;
 
   for (let i = 0; i < linha.length; i++) {
@@ -164,7 +161,7 @@ function parsearLinhaCSV(linha, separador = ',') {
 function processarProduto(linha) {
   if (!linha.MATERIAL || !linha.NOME_COMERCIAL) return null;
 
-  const saldo        = parseInt(linha.SALDO, 10) || 0;
+  const saldo = parseInt(linha.SALDO, 10) || 0;
   const nomeCompleto = limparNome(linha.NOME_COMERCIAL);
 
   // Colunas do novo arquivo
@@ -176,17 +173,17 @@ function processarProduto(linha) {
   const parc24x = valor24x > 0 ? valor24x / 24 : 0;
 
   return {
-    material:   linha.MATERIAL,
-    nome:       nomeCompleto,
-    valor10x:   valor10x,
-    parc10x:    parc10x,
-    valor24x:   valor24x,
-    parc24x:    parc24x,
+    material: linha.MATERIAL,
+    nome: nomeCompleto,
+    valor10x: valor10x,
+    parc10x: parc10x,
+    valor24x: valor24x,
+    parc24x: parc24x,
     fabricante: linha.FABRICANTE || 'Outros',
-    saldo:      saldo,
-    imagem:     encontrarImagem(nomeCompleto),
-    tipo:       detectarTipo(linha.NOME_COMERCIAL),
-    status:     calcularStatus(saldo),
+    saldo: saldo,
+    imagem: encontrarImagem(nomeCompleto),
+    tipo: detectarTipo(linha.NOME_COMERCIAL),
+    status: calcularStatus(saldo),
   };
 }
 
@@ -200,16 +197,16 @@ function limparNome(nome) {
 
 function detectarTipo(nome) {
   const n = nome.toLowerCase();
-  if (n.includes('tablet') || n.includes('ipad'))    return { label: 'Tablet',     emoji: '📟' };
-  if (n.includes('watch')  || n.includes('relógio')) return { label: 'Wearable',   emoji: '⌚' };
-  return                                                     { label: 'Smartphone', emoji: '📱' };
+  if (n.includes('tablet') || n.includes('ipad')) return { label: 'Tablet', emoji: '📟' };
+  if (n.includes('watch') || n.includes('relógio')) return { label: 'Wearable', emoji: '⌚' };
+  return { label: 'Smartphone', emoji: '📱' };
 }
 
 function calcularStatus(saldo) {
-  if (saldo === 0) return { classe: 'esgotado',   texto: '❌ Esgotado' };
-  if (saldo <= 3)  return { classe: 'ultimos',    texto: `⚡ Últimas ${saldo} unidades!` };
-  if (saldo <= 10) return { classe: 'poucos',     texto: `⚠️ Apenas ${saldo} unidades` };
-  return                  { classe: 'disponivel', texto: `✅ ${saldo} unidades` };
+  if (saldo === 0) return { classe: 'esgotado', texto: '❌ Esgotado' };
+  if (saldo <= 3) return { classe: 'ultimos', texto: `⚡ Últimas ${saldo} unidades!` };
+  if (saldo <= 10) return { classe: 'poucos', texto: `⚠️ Apenas ${saldo} unidades` };
+  return { classe: 'disponivel', texto: `✅ ${saldo} unidades` };
 }
 
 
@@ -217,32 +214,19 @@ function calcularStatus(saldo) {
 // 4. CRIAR BOTÕES DE FILTRO
 // ============================================
 function criarBotoesFiltroPorMarca() {
-  const marcas    = ['todos', ...new Set(todosOsProdutos.map(p => p.fabricante).sort())];
+  const marcas = ['todos', ...new Set(todosOsProdutos.map(p => p.fabricante).sort())];
   const container = document.getElementById('filtros-marca');
 
   marcas.forEach(marca => {
-    const btn         = document.createElement('button');
-    btn.className     = 'filtro-btn' + (marca === 'todos' ? ' ativo' : '');
-    btn.textContent   = marca === 'todos' ? '🏷️ Todas as marcas' : marca;
+    const btn = document.createElement('button');
+    btn.className = 'filtro-btn' + (marca === 'todos' ? ' ativo' : '');
+    btn.textContent = marca === 'todos' ? '🏷️ Todas as marcas' : marca;
     btn.dataset.valor = marca;
-    btn.onclick       = () => alterarFiltroMarca(marca);
+    btn.onclick = () => alterarFiltroMarca(marca);
     container.appendChild(btn);
   });
 }
 
-function criarBotoesFiltroPorTipo() {
-  const tipos     = ['todos', 'Smartphone', 'Tablet', 'Wearable'];
-  const container = document.getElementById('filtros-tipo');
-
-  tipos.forEach(tipo => {
-    const btn         = document.createElement('button');
-    btn.className     = 'filtro-btn' + (tipo === 'todos' ? ' ativo' : '');
-    btn.textContent   = tipo === 'todos' ? '📦 Todos' : tipo;
-    btn.dataset.valor = tipo;
-    btn.onclick       = () => alterarFiltroTipo(tipo);
-    container.appendChild(btn);
-  });
-}
 
 
 // ============================================
@@ -250,9 +234,9 @@ function criarBotoesFiltroPorTipo() {
 // ============================================
 function renderizarCards() {
   const filtrados = filtrarEOrdenar();
-  const grade     = document.getElementById('grade-produtos');
+  const grade = document.getElementById('grade-produtos');
   const semResult = document.getElementById('sem-resultados');
-  const contador  = document.getElementById('contador');
+  const contador = document.getElementById('contador');
 
   grade.innerHTML = '';
 
@@ -288,8 +272,8 @@ function filtrarEOrdenar() {
   }
 
   resultado.sort((a, b) => {
-    if (ordenacaoAtiva === 'menor-preco')  return a.valor10x - b.valor10x;
-    if (ordenacaoAtiva === 'maior-preco')  return b.valor10x - a.valor10x;
+    if (ordenacaoAtiva === 'menor-preco') return a.valor10x - b.valor10x;
+    if (ordenacaoAtiva === 'maior-preco') return b.valor10x - a.valor10x;
     if (ordenacaoAtiva === 'mais-estoque') return b.saldo - a.saldo;
     return a.nome.localeCompare(b.nome, 'pt-BR');
   });
@@ -303,7 +287,7 @@ function filtrarEOrdenar() {
 // ============================================
 function criarCardHTML(produto) {
   const marcaClasse = produto.fabricante.toLowerCase();
-  const esgotado    = produto.saldo === 0;
+  const esgotado = produto.saldo === 0;
 
   const mensagem = encodeURIComponent(
     `Olá! Tenho interesse no *${produto.nome}*.\nPoderia me passar mais informações? 😊`
@@ -315,11 +299,11 @@ function criarCardHTML(produto) {
   return `
     <article class="card ${esgotado ? 'card--esgotado' : ''}">
 
-      <div class="card__imagem">
-        ${produto.imagem
-          ? `<img src="${produto.imagem}" alt="${produto.nome}" class="card__foto" />`
-          : produto.tipo.emoji}
-      </div>
+    <div class="card__imagem">
+  ${produto.imagem
+      ? `<img src="${produto.imagem}" alt="${produto.nome}" class="card__foto" />`
+      : ''}
+    </div>
 
       <div class="card__corpo">
 
@@ -352,8 +336,8 @@ function criarCardHTML(produto) {
         </div>
 
         ${esgotado
-          ? `<button class="card__botao-wa" disabled>Produto Esgotado</button>`
-          : `<a href="${linkWA}" target="_blank" class="card__botao-wa">
+      ? `<button class="card__botao-wa" disabled>Produto Esgotado</button>`
+      : `<a href="${linkWA}" target="_blank" class="card__botao-wa">
                ${SVG_WA} Quero esse!
              </a>`}
 
@@ -398,12 +382,12 @@ function atualizarBotaoAtivo(idContainer, valorAtivo) {
 
 function limparFiltros() {
   filtroMarcaAtivo = 'todos';
-  filtroTipoAtivo  = 'todos';
-  termoBusca       = '';
-  ordenacaoAtiva   = 'nome';
-  document.getElementById('campo-busca').value      = '';
+  filtroTipoAtivo = 'todos';
+  termoBusca = '';
+  ordenacaoAtiva = 'nome';
+  document.getElementById('campo-busca').value = '';
   document.getElementById('select-ordenacao').value = 'nome';
   atualizarBotaoAtivo('filtros-marca', 'todos');
-  atualizarBotaoAtivo('filtros-tipo',  'todos');
+  atualizarBotaoAtivo('filtros-tipo', 'todos');
   renderizarCards();
 }
